@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+
+    <!-- Game Overlay -->
+    <div id="overlay">
+        <div id="message">
+            <div id="fa_close">
+                <i class="fa fa-close"></i>
+            </div>
+            <div class="content">X is the
+                <h2>winner</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tools">
+            <div class="symbols">
+                <i class="fa fa-close"></i>
+                <i class="fa fa-circle-o"></i>
+            </div>
+            <div class="turn">
+                <span class="current-turn"></span> <span>turn</span>
+            </div>
+            <div class="reset">
+                <div class="button"></div>
+                <i class="fa fa-rotate-right"></i>
+            </div>
+        </div>
+        <div class="board">
+            <div class="cells">
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+            </div>
+            <div class="cells">
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+            </div>
+            <div class="cells">
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+            </div>
+            <div class="stats">
+                <div class="player">
+                    <label>Player 1</label>
+                    <span class="score1">0</span>
+                </div>
+                <div class="draws">
+                    <label>Draws</label>
+                    <span class="draw">0</span>
+                </div>
+                <div class="player">
+                    <label>Player 2</label>
+                    <span class="score2">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="t.js">
+        // Initialize game variables
+let currentTurn = "X"; // Start with player X
+let board = Array(9).fill(null); // Empty board
+let gameOver = false;
+let player1Score = 0;
+let player2Score = 0;
+let draws = 0;
+
+// Select UI elements
+const cells = document.querySelectorAll(".cell");
+const resetButton = document.querySelector(".reset");
+const currentTurnDisplay = document.querySelector(".current-turn");
+const score1Display = document.querySelector(".score1");
+const score2Display = document.querySelector(".score2");
+const drawsDisplay = document.querySelector(".draw");
+const messageOverlay = document.getElementById("overlay");
+const messageContent = document.querySelector("#message .content");
+const closeOverlayButton = document.querySelector("#fa_close");
+
+// Winning combinations
+const winningCombinations = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8], // Rows
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8], // Columns
+    [0, 4, 8],
+    [2, 4, 6] // Diagonals
+];
+
+// Update current turn display
+function updateTurnDisplay() {
+    currentTurnDisplay.textContent = currentTurn;
+}
+
+// Check if someone has won
+function checkWin() {
+    for (const combination of winningCombinations) {
+        const [a, b, c] = combination;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return board[a]; // Return "X" or "O"
+        }
+    }
+    return null;
+}
+
+// Check for a draw
+function checkDraw() {
+    return board.every(cell => cell !== null);
+}
+
+// Handle a cell click
+function handleCellClick(e) {
+    const index = Array.from(cells).indexOf(e.target);
+
+    // If the cell is already filled or the game is over, do nothing
+    if (board[index] || gameOver) return;
+
+    // Update board and UI
+    board[index] = currentTurn;
+    e.target.textContent = currentTurn;
+
+    // Check if the game is won
+    const winner = checkWin();
+    if (winner) {
+        gameOver = true;
+        messageContent.innerHTML = `<h2>${winner} is the winner!</h2>`;
+        messageOverlay.style.display = "flex";
+
+        if (winner === "X") {
+            player1Score++;
+            score1Display.textContent = player1Score;
+        } else {
+            player2Score++;
+            score2Display.textContent = player2Score;
+        }
+        return;
+    }
+
+    // Check if it's a draw
+    if (checkDraw()) {
+        gameOver = true;
+        messageContent.innerHTML = `<h2>It's a draw!</h2>`;
+        messageOverlay.style.display = "flex";
+        draws++;
+        drawsDisplay.textContent = draws;
+        return;
+    }
+
+    // Switch turn
+    currentTurn = currentTurn === "X" ? "O" : "X";
+    updateTurnDisplay();
+}
+
+// Reset the game board
+function resetBoard() {
+    board.fill(null);
+    cells.forEach(cell => {
+        cell.textContent = "";
+    });
+    gameOver = false;
+    currentTurn = "X";
+    updateTurnDisplay();
+}
+
+// Close the overlay
+function closeOverlay() {
+    messageOverlay.style.display = "none";
+}
+
+// Attach event listeners
+document.addEventListener("DOMContentLoaded", () => {
+    cells.forEach(cell => cell.addEventListener("click", handleCellClick));
+    resetButton.addEventListener("click", resetBoard);
+    closeOverlayButton.addEventListener("click", closeOverlay);
+    updateTurnDisplay();
+});
+
+
+    </script>
+
+</body>
+
+</html>
